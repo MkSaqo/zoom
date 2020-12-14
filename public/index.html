@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    let clientSocket = null;
+
+    window.onload = function () {
+
+      let otherPeers = [];
+      var pc = new RTCPeerConnection();
+
+      // let pc = new RTCPeerConnection({'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}]});
+      let offerSent = false;
+      let stream = null;
+      function setupClient() {
+        let clientSocket = io.connect(window.location.origin);
+        clientSocket.on('client_socket', function (data) {
+          if (data == 0) {
+            pc.createOffer().then(function (offer) {
+              pc.setRemoteDescription(offer);
+              clientSocket.emit('server_socket', { type: 'description', info: offer })
+              offerSent = true;
+            });
+          }
+          if (data.type == 'description') {
+            pc.setRemoteDescription(new RTCSessionDescription(date.info));
+            // pc.createAnswer(gotAnswerDescription);
+          }
+          // else if(data.type = 'candidate'){
+          //   console.log(data)
+          //   pc.addIceCandidate(new RTCIceCandidate(data.info))
+          // }
+          // else if(data = 'reset'){
+          //   pc.close();
+          //   alert('user exted');
+          // }
+        });
+        function gotOfferDescription(desc) {
+          pc.setRemoteDescription(desc);
+          clientSocket.emit('server_socket', { type: 'description', info: desc })
+        }
+        function gotAnswerDescription(desc) {
+          console.log('-----')
+          pc.setRemoteDescription(desc);
+          clientSocket.emit('server_socket', { type: 'description', info: desc })
+        }
+        pc.onicecandidate = function (event) {
+          if (event.candidate) {
+            clientSocket.emit('server_socket', { type: 'candidate', info: candidate });
+          }
+        }
+        // pc.onaddstream = function (e) {
+        //   document.getElementById('videoStreamOutput').srcObject = e.stream;
+        //   document.getElementById('videoStreamOutput').style.display ='inline';
+        // }
+        pc.onerror = function () {
+          console.log('eror')
+        };
+
+      };
+
+
+
+
+      (function () {
+        navigator.getUserMedia({ video: true, audio: true }, function (stream) {
+          document.getElementById('myStream').srcObject = stream;
+          document.getElementById('myStream').style.display = 'inline';
+          stream.getTracks().forEach(function (track) {
+            pc.addTrack(track, stream);
+          });
+          setupClient();
+        }, function (err) { });
+      })();
+    }
+
+  </script>
+</head>
+
+<body>
+  <video id='videoStreamOutput' autoplay width="500" style="display: none;" src=""></video>
+  <video id='myStream' autoplay width="500" style="display: none;" src=""></video>
+</body>
+
+</html>
