@@ -5,6 +5,7 @@ const video = document.querySelector("video");
 
 socket.on("offer", (id, description) => {
   peerConnection = new RTCPeerConnection();
+  console.log(peerConnection.signalingState)
     peerConnection
       .setRemoteDescription(description)
       .then(() => peerConnection.createAnswer())
@@ -23,7 +24,8 @@ socket.on("offer", (id, description) => {
   });
 
 
-  socket.on("candidate", (id, candidate) => {
+  socket.on("candidate", (id, candidate) => {  console.log(peerConnection.signalingState)
+
     peerConnection
       .addIceCandidate(new RTCIceCandidate(candidate))
       .catch(e => console.error(e));

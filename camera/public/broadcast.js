@@ -18,8 +18,10 @@ navigator.mediaDevices
   .catch(error => console.error(error));
 
 
-  socket.on("watcher", id => {
+  socket.on("watcher", id => {  
     const peerConnection = new RTCPeerConnection();
+    console.log(peerConnection.signalingState)
+
     peerConnections[id] = peerConnection;
   
     let stream = video.srcObject;
@@ -39,17 +41,21 @@ navigator.mediaDevices
       });
   });
   
-  socket.on("answer", (id, description) => {
+  socket.on("answer", (id, description) => { 
+     console.log(peerConnections[id].signalingState)
+
     peerConnections[id].setRemoteDescription(description);
   });
   
-  socket.on("candidate", (id, candidate) => {
+  socket.on("candidate", (id, candidate) => {  console.log(peerConnections[id].signalingState)
+
     peerConnections[id].addIceCandidate(new RTCIceCandidate(candidate));
   });
 
 
 
-  socket.on("disconnectPeer", id => {
+  socket.on("disconnectPeer", id => {  console.log(peerConnection.signalingState)
+
     peerConnections[id].close();
     delete peerConnections[id];
   });

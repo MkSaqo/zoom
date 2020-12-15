@@ -15,7 +15,6 @@
         let offerSent = false;
         let stream = null;
         function setupClient(){
-          // clientSocket = io.connect('192.168.:3000');
           const clientSocket = io.connect(window.location.origin);
           clientSocket.on('client_socket',function(data){
             if(data == 0){
