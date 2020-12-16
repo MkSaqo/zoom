@@ -17,11 +17,10 @@
       function setupClient() {
         const clientSocket = io.connect(window.location.origin);
         clientSocket.on('client_socket', function (data) {
-          console.log(pc.localDescription)
           if (data == 0) {
             pc.createOffer().then(desc => pc.setLocalDescription(desc)).then(() => {
-              clientSocket.emit('server_socket', 
-              { type: 'description', info: pc.localDescription });
+              clientSocket.emit('server_socket',
+                { type: 'description', info: pc.localDescription });
               offerSent = true;
             })
           }
@@ -30,8 +29,8 @@
               offerSent = false;
               pc.setRemoteDescription(new RTCSessionDescription(data.info));
               pc.createAnswer().then(desc => pc.setLocalDescription(desc)).then(() => {
-                clientSocket.emit('server_socket', 
-                { type: 'description', info: pc.localDescription });
+                clientSocket.emit('server_socket',
+                  { type: 'description', info: pc.localDescription });
               });
             }
             else {
@@ -45,14 +44,22 @@
             pc.close();
           }
         });
+        pc.ontrack = function (e) {
+          if (e.track.kind == 'video') {
+            var element = document.createElement('video');
+            element.setAttribute('id', e.track.id)
+            element.setAttribute('src', '')
+            element.autoplay = true;
+            document.body.appendChild(element)
+            video = document.getElementById(e.track.id)
+            video.srcObject = e.streams[0]
+            }
+        }
         pc.onicecandidate = function (event) {
 
           if (event.candidate) {
             clientSocket.emit('server_socket', { type: 'candidate', info: event.candidate });
           }
-        }
-        pc.ontrack = function (e) {
-          document.getElementById('stream1').srcObject = e.streams[0];
         }
       }
 
@@ -72,8 +79,6 @@
 
 <body>
   <video id='stream' autoplay width="300" src=""></video>
-  <video id='stream1' autoplay width="300" src=""></video>
-  <video id='stream2' autoplay width="300" src=""></video>
 </body>
 
 </html>

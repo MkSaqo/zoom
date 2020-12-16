@@ -35,7 +35,7 @@ io.sockets.on("connection", socket => {
 
 
   socket.on('server_socket',function(data){
-    if(peers.length<4){
+    if(peers.length<3){
       peerSPDs.push(data);
       socket.broadcast.emit('client_socket',data);
     }
